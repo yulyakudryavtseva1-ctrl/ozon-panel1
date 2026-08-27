@@ -1,4 +1,4 @@
-name: Обновление панели Ozon
+name: Обновление панели кабинетов
 
 on:
   schedule:
@@ -21,8 +21,8 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - name: Забрать данные Ozon и пересобрать страницу
-        run: python scripts/fetch_ozon.py
+      - name: Забрать данные Ozon и Wildberries, пересобрать страницу
+        run: python scripts/build_dashboard.py
         env:
           OZON_CLIENT_ID: ${{ secrets.OZON_CLIENT_ID }}
           OZON_API_KEY: ${{ secrets.OZON_API_KEY }}
@@ -30,6 +30,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           OZON_PERFORMANCE_CLIENT_ID: ${{ secrets.OZON_PERFORMANCE_CLIENT_ID }}
           OZON_PERFORMANCE_CLIENT_SECRET: ${{ secrets.OZON_PERFORMANCE_CLIENT_SECRET }}
+          WB_API_KEY: ${{ secrets.WB_API_KEY }}
 
       - name: Закоммитить обновлённую страницу
         uses: stefanzweifel/git-auto-commit-action@v5
