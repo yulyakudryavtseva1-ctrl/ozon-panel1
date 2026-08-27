@@ -11,6 +11,11 @@ Api-Key). API у площадок периодически меняется, п�
 Скрипт спроектирован так, чтобы НЕ ломать сайт при сбое: если какой-то из
 запросов не удался, используются последние успешно сохранённые данные
 (data/last_data.json), а на страницу добавляется предупреждение.
+
+Опционально (если заданы секреты TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID) —
+после успешной сборки отправляет уведомление в Telegram, но только если
+есть критичные/требующие внимания задачи. Если секреты не заданы — просто
+молча пропускает этот шаг, сайт всё равно обновится.
 """
 
 import json
@@ -22,6 +27,7 @@ import requests
 from jinja2 import Template
 
 BASE_URL = "https://api-seller.ozon.ru"
+SITE_URL = "https://yulyakudryavtseva1-ctrl.github.io/ozon-panel1/"
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(ROOT, "data")
 LAST_DATA_PATH = os.path.join(DATA_DIR, "last_data.json")
@@ -182,6 +188,88 @@ def fmt_delta(current, previous, is_money=False):
 
 WEEKDAYS_RU = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 
+# Задачи ниже какого статуса считаем "требующими внимания" для Telegram-уведомления.
+ALERT_SEVERITIES = {"critical", "warning"}
+
+
+def build_tasks(stock_rows, orders_yesterday, orders_prev):
+    """Превращает сырые цифры в короткий список конкретных дел на сегодня.
+    Пока источник только остатки + резкий провал заказов; когда подключим
+    рекламу/отзывы — добавь сюда ещё правил, ничего в шаблоне менять не надо."""
+    tasks = []
+
+    for r in stock_rows:
+        if r["status_class"] == "critical":
+            tasks.append(
+                {
+                    "severity": "critical",
+                    "text": f"Пополнить «{r['name']}» — риск обнуления через {r['days_left']} дн. (осталось {r['stock']} шт).",
+                }
+            )
+        elif r["status_class"] == "warning":
+            tasks.append(
+                {
+                    "severity": "warning",
+                    "text": f"Проверить поставку «{r['name']}» — хватит на {r['days_left']} дн.",
+                }
+            )
+
+    if orders_prev not in (None, 0):
+        change = (orders_yesterday - orders_prev) / orders_prev * 100
+        if change <= -15:
+            tasks.append(
+                {
+                    "severity": "warning",
+                    "text": f"Заказы упали на {abs(round(change))}% ко вчера — проверить цену, остатки, рекламу и позиции конкурентов.",
+                }
+            )
+
+    order = {"critical": 0, "warning": 1, "good": 2}
+    tasks.sort(key=lambda t: order.get(t["severity"], 9))
+
+    if not tasks:
+        tasks.append(
+            {
+                "severity": "good",
+                "text": "Критичных задач нет — можно заняться точками роста (например, скилл growth-opportunities-scan).",
+            }
+        )
+    return tasks
+
+
+def send_telegram_alert(tasks):
+    """Шлёт уведомление в Telegram, только если есть критичные/warning задачи
+    и в репозитории настроены секреты TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID.
+    Если секретов нет — тихо ничего не делает, сайт при этом всё равно
+    обновляется как обычно."""
+    token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    chat_id = os.environ.get("TELEGRAM_CHAT_ID")
+    if not token or not chat_id:
+        return
+
+    urgent = [t for t in tasks if t["severity"] in ALERT_SEVERITIES]
+    if not urgent:
+        return
+
+    lines = ["⚠️ Панель Ozon — есть на что обратить внимание сегодня:", ""]
+    for t in urgent:
+        prefix = "🔴" if t["severity"] == "critical" else "🟡"
+        lines.append(f"{prefix} {t['text']}")
+    lines.append("")
+    lines.append(SITE_URL)
+    text = "\n".join(lines)
+
+    try:
+        resp = requests.post(
+            f"https://api.telegram.org/bot{token}/sendMessage",
+            json={"chat_id": chat_id, "text": text},
+            timeout=15,
+        )
+        if resp.status_code != 200:
+            print(f"Telegram вернул ошибку {resp.status_code}: {resp.text}", file=sys.stderr)
+    except Exception as exc:
+        print(f"Не удалось отправить уведомление в Telegram: {exc}", file=sys.stderr)
+
 
 def render(dataset, error_message=None):
     daily = dataset["daily"]
@@ -240,6 +328,8 @@ def render(dataset, error_message=None):
     stock_rows.sort(key=lambda r: r["days_left"])
     stock_rows = stock_rows[:10]
 
+    tasks = build_tasks(stock_rows, orders_yesterday, orders_prev)
+
     with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
         template = Template(f.read())
 
@@ -250,11 +340,14 @@ def render(dataset, error_message=None):
         stock_rows=stock_rows,
         stock_risk_count=len(stock_rows),
         stock_risk_days=10,
+        tasks=tasks,
         error_message=error_message,
     )
 
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         f.write(html)
+
+    return tasks
 
 
 def demo_dataset():
@@ -283,8 +376,9 @@ def main():
     try:
         dataset = build_dataset()
         save_cache(dataset)
-        render(dataset)
+        tasks = render(dataset)
         print("Готово: index.html обновлён свежими данными.")
+        send_telegram_alert(tasks)
     except Exception as exc:  # noqa: BLE001 — сознательно широкий except, см. докстринг модуля
         print(f"Ошибка при получении данных Ozon: {exc}", file=sys.stderr)
         cached = load_cached()

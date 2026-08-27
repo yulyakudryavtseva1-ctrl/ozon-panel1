@@ -7,236 +7,264 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&display=swap">
 <style>
+:root {
+  color-scheme: light;
+  --bg-page: #f9f9f7;
+  --bg-card: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink-soft: #52514e;
+  --ink-muted: #898781;
+  --hairline: #e1e0d9;
+  --border-ring: rgba(11,11,11,0.08);
+  --accent: #2a78d6;
+  --accent-soft: #e3edfb;
+  --accent-ink: #184f95;
+  --good: #0ca30c;
+  --good-soft: #e2f6e2;
+  --warning: #b8790a;
+  --warning-soft: #fdf1d9;
+  --serious: #c85a34;
+  --serious-soft: #fbe7dd;
+  --critical: #d03b3b;
+  --critical-soft: #fbe2e2;
+  --shadow: 0 1px 2px rgba(11,11,11,0.04), 0 1px 12px rgba(11,11,11,0.04);
+}
+@media (prefers-color-scheme: dark) {
   :root {
-    color-scheme: light;
-    --bg-page: #f9f9f7;
-    --bg-card: #fcfcfb;
-    --ink: #0b0b0b;
-    --ink-soft: #52514e;
-    --ink-muted: #898781;
-    --hairline: #e1e0d9;
-    --border-ring: rgba(11,11,11,0.08);
-    --accent: #2a78d6;
-    --accent-soft: #e3edfb;
-    --accent-ink: #184f95;
-    --good: #0ca30c;
-    --good-soft: #e2f6e2;
-    --warning: #b8790a;
-    --warning-soft: #fdf1d9;
-    --serious: #c85a34;
-    --serious-soft: #fbe7dd;
-    --critical: #d03b3b;
-    --critical-soft: #fbe2e2;
-    --shadow: 0 1px 2px rgba(11,11,11,0.04), 0 1px 12px rgba(11,11,11,0.04);
+    color-scheme: dark;
+    --bg-page: #0d0d0d;
+    --bg-card: #1a1a19;
+    --ink: #ffffff;
+    --ink-soft: #c3c2b7;
+    --ink-muted: #8f8e87;
+    --hairline: #2c2c2a;
+    --border-ring: rgba(255,255,255,0.08);
+    --accent: #3987e5;
+    --accent-soft: rgba(57,135,229,0.14);
+    --accent-ink: #9dc4f4;
+    --good: #2fbf4f;
+    --good-soft: rgba(47,191,79,0.14);
+    --warning: #e0a637;
+    --warning-soft: rgba(224,166,55,0.14);
+    --serious: #ef8a63;
+    --serious-soft: rgba(239,138,99,0.14);
+    --critical: #ea6363;
+    --critical-soft: rgba(234,99,99,0.14);
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 1px 16px rgba(0,0,0,0.24);
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      color-scheme: dark;
-      --bg-page: #0d0d0d;
-      --bg-card: #1a1a19;
-      --ink: #ffffff;
-      --ink-soft: #c3c2b7;
-      --ink-muted: #8f8e87;
-      --hairline: #2c2c2a;
-      --border-ring: rgba(255,255,255,0.08);
-      --accent: #3987e5;
-      --accent-soft: rgba(57,135,229,0.14);
-      --accent-ink: #9dc4f4;
-      --good: #2fbf4f;
-      --good-soft: rgba(47,191,79,0.14);
-      --warning: #e0a637;
-      --warning-soft: rgba(224,166,55,0.14);
-      --serious: #ef8a63;
-      --serious-soft: rgba(239,138,99,0.14);
-      --critical: #ea6363;
-      --critical-soft: rgba(234,99,99,0.14);
-      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 1px 16px rgba(0,0,0,0.24);
-    }
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
-  body {
-    background: var(--bg-page);
-    color: var(--ink);
-    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
-    -webkit-font-smoothing: antialiased;
-  }
-  .brand h1, .card-head h2, .team h2, .growth-item h3, .team-role { font-family: "Manrope", -apple-system, "Segoe UI", sans-serif; }
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 64px; display: flex; flex-direction: column; gap: 18px; }
-  .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
-  .brand h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.01em; }
-  .brand p { margin: 4px 0 0; color: var(--ink-soft); font-size: 13.5px; }
-  .headline-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-  .datestamp { font-size: 12.5px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
-  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 700; }
-  .pill.warning { background: var(--warning-soft); color: var(--warning); }
-  .pill.critical { background: var(--critical-soft); color: var(--critical); }
-  .pill.good { background: var(--good-soft); color: var(--good); }
-  .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-  .status-banner { background: var(--warning-soft); color: var(--warning); border: 1px solid var(--border-ring); border-radius: 10px; padding: 10px 14px; font-size: 13px; line-height: 1.5; }
-  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  .kpi-card { background: var(--bg-card); border: 1px solid var(--border-ring); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); }
-  .kpi-label { font-size: 11.5px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
-  .kpi-value { margin-top: 6px; font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
-  .kpi-delta { margin-top: 4px; font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
-  .kpi-delta.up { color: var(--good); }
-  .kpi-delta.down { color: var(--critical); }
-  .kpi-delta.flat { color: var(--ink-muted); }
-  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-  .card { background: var(--bg-card); border: 1px solid var(--border-ring); border-radius: 14px; padding: 18px 20px 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-  .card.span2 { grid-column: span 2; }
-  .card.soon { opacity: 0.6; }
-  .card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-  .card-head h2 { margin: 0; font-size: 15px; font-weight: 800; }
-  .card-head .agent { font-size: 11.5px; color: var(--ink-muted); font-weight: 600; }
-  .card-sub { font-size: 12.5px; color: var(--ink-soft); margin: -6px 0 0; }
-  .barchart { display: flex; align-items: flex-end; gap: 8px; height: 92px; }
-  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; position: relative; }
-  .bar { width: 100%; max-width: 26px; border-radius: 4px 4px 2px 2px; background: var(--accent); position: relative; cursor: default; }
-  .bar-col .x-label { font-size: 10.5px; color: var(--ink-muted); }
-  .bar:hover::after { content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 6px; background: var(--ink); color: var(--bg-card); font-size: 11px; font-weight: 600; padding: 4px 7px; border-radius: 6px; white-space: nowrap; z-index: 2; }
-  table { width: 100%; border-collapse: collapse; font-size: 12.8px; }
-  th { text-align: left; font-size: 10.8px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-muted); font-weight: 700; padding: 0 10px 8px 0; border-bottom: 1px solid var(--hairline); }
-  td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--hairline); color: var(--ink); vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-  .table-wrap { overflow-x: auto; }
-  .chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
-  .chip.good { background: var(--good-soft); color: var(--good); }
-  .chip.warning { background: var(--warning-soft); color: var(--warning); }
-  .chip.serious { background: var(--serious-soft); color: var(--serious); }
-  .chip.critical { background: var(--critical-soft); color: var(--critical); }
-  .empty-note { font-size: 12.5px; color: var(--ink-muted); padding: 10px 0; }
-  .team { background: var(--bg-card); border: 1px solid var(--border-ring); border-radius: 14px; padding: 20px; box-shadow: var(--shadow); }
-  .team h2 { margin: 0 0 4px; font-size: 15px; font-weight: 800; }
-  .team > p { margin: 0 0 14px; font-size: 12.5px; color: var(--ink-soft); max-width: 62ch; }
-  .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
-  .team-card { border: 1px solid var(--hairline); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
-  .team-role { font-size: 12.5px; font-weight: 800; }
-  .team-skill { font-size: 11px; color: var(--accent-ink); font-weight: 700; }
-  .team-desc { font-size: 11.5px; color: var(--ink-soft); line-height: 1.4; }
-  .team-run { font-size: 10.5px; color: var(--ink-muted); margin-top: 2px; }
-  .footnote { font-size: 12px; color: var(--ink-muted); text-align: center; padding-top: 8px; }
-  @media (max-width: 860px) {
-    .kpi-row { grid-template-columns: repeat(2, 1fr); }
-    .grid { grid-template-columns: 1fr; }
-    .card.span2 { grid-column: span 1; }
-  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg-page);
+  color: var(--ink);
+  font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.brand h1, .card-head h2, .team h2, .growth-item h3, .team-role, .tasks-card h2 { font-family: "Manrope", -apple-system, "Segoe UI", sans-serif; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 64px; display: flex; flex-direction: column; gap: 18px; }
+.topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+.brand h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.01em; }
+.brand p { margin: 4px 0 0; color: var(--ink-soft); font-size: 13.5px; }
+.headline-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.datestamp { font-size: 12.5px; color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; font-size: 12.5px; font-weight: 700; }
+.pill.warning { background: var(--warning-soft); color: var(--warning); }
+.pill.critical { background: var(--critical-soft); color: var(--critical); }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.status-banner { background: var(--warning-soft); color: var(--warning); border: 1px solid var(--border-ring); border-radius: 10px; padding: 10px 14px; font-size: 13px; line-height: 1.5; }
+.tasks-card { background: var(--bg-card); border: 1px solid var(--border-ring); border-radius: 14px; padding: 18px 20px 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; }
+.tasks-card .card-head h2 { margin: 0; font-size: 15px; font-weight: 800; }
+.task-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
+.task-item { display: flex; align-items: flex-start; gap: 10px; font-size: 13.8px; line-height: 1.5; }
+.task-dot { width: 9px; height: 9px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.task-item.critical .task-dot { background: var(--critical); }
+.task-item.warning .task-dot { background: var(--warning); }
+.task-item.good .task-dot { background: var(--good); }
+.task-item.critical .task-text { font-weight: 700; }
+.task-item.warning .task-text { font-weight: 600; }
+.task-item.good .task-text { color: var(--ink-soft); }
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.kpi-card { background: var(--bg-card); border: 1px solid var(--border-ring); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); }
+.kpi-label { font-size: 11.5px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+.kpi-value { margin-top: 6px; font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.kpi-delta { margin-top: 4px; font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kpi-delta.up { color: var(--good); }
+.kpi-delta.down { color: var(--critical); }
+.kpi-delta.flat { color: var(--ink-muted); }
+.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.card { background: var(--bg-card); border: 1px solid var(--border-ring); border-radius: 14px; padding: 18px 20px 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.card.span2 { grid-column: span 2; }
+.card.soon { opacity: 0.6; }
+.card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.card-head h2 { margin: 0; font-size: 15px; font-weight: 800; }
+.card-head .agent { font-size: 11.5px; color: var(--ink-muted); font-weight: 600; }
+.card-sub { font-size: 12.5px; color: var(--ink-soft); margin: -6px 0 0; }
+.barchart { display: flex; align-items: flex-end; gap: 8px; height: 92px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; position: relative; }
+.bar { width: 100%; max-width: 26px; border-radius: 4px 4px 2px 2px; background: var(--accent); position: relative; cursor: default; }
+.bar-col .x-label { font-size: 10.5px; color: var(--ink-muted); }
+.bar:hover::after { content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 6px; background: var(--ink); color: var(--bg-card); font-size: 11px; font-weight: 600; padding: 4px 7px; border-radius: 6px; white-space: nowrap; z-index: 2; }
+table { width: 100%; border-collapse: collapse; font-size: 12.8px; }
+th { text-align: left; font-size: 10.8px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-muted); font-weight: 700; padding: 0 10px 8px 0; border-bottom: 1px solid var(--hairline); }
+td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--hairline); color: var(--ink); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.table-wrap { overflow-x: auto; }
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+.chip.good { background: var(--good-soft); color: var(--good); }
+.chip.warning { background: var(--warning-soft); color: var(--warning); }
+.chip.serious { background: var(--serious-soft); color: var(--serious); }
+.chip.critical { background: var(--critical-soft); color: var(--critical); }
+.empty-note { font-size: 12.5px; color: var(--ink-muted); padding: 10px 0; }
+.team { background: var(--bg-card); border: 1px solid var(--border-ring); border-radius: 14px; padding: 20px; box-shadow: var(--shadow); }
+.team h2 { margin: 0 0 4px; font-size: 15px; font-weight: 800; }
+.team > p { margin: 0 0 14px; font-size: 12.5px; color: var(--ink-soft); max-width: 62ch; }
+.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+.team-card { border: 1px solid var(--hairline); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+.team-role { font-size: 12.5px; font-weight: 800; }
+.team-skill { font-size: 11px; color: var(--accent-ink); font-weight: 700; }
+.team-desc { font-size: 11.5px; color: var(--ink-soft); line-height: 1.4; }
+.team-run { font-size: 10.5px; color: var(--ink-muted); margin-top: 2px; }
+.footnote { font-size: 12px; color: var(--ink-muted); text-align: center; padding-top: 8px; }
+@media (max-width: 860px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .grid { grid-template-columns: 1fr; }
+  .card.span2 { grid-column: span 1; }
+}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <div class="topbar">
-    <div class="brand">
-      <h1>Панель Ozon</h1>
-      <p>Личная сводка по кабинету — обновляется автоматически каждое утро</p>
+<div class="topbar">
+  <div class="brand">
+    <h1>Панель Ozon</h1>
+    <p>Личная сводка по кабинету — обновляется автоматически каждое утро</p>
+  </div>
+  <div class="headline-meta">
+    <span class="datestamp">Данные на {{ generated_at }}</span>
+    {% if stock_risk_count > 0 %}
+    <span class="pill warning"><span class="dot"></span>Требует внимания: {{ stock_risk_count }} SKU</span>
+    {% else %}
+    <span class="pill good"><span class="dot"></span>Всё в норме</span>
+    {% endif %}
+  </div>
+</div>
+
+{% if error_message %}
+<div class="status-banner">⚠️ Не удалось обновить данные при последнем запуске ({{ error_message }}). Показаны последние успешно полученные данные.</div>
+{% endif %}
+
+{% if tasks %}
+<div class="tasks-card">
+  <div class="card-head">
+    <h2>Задачи на сегодня</h2>
+    <span class="agent">собрано из данных ниже</span>
+  </div>
+  <ul class="task-list">
+    {% for t in tasks %}
+    <li class="task-item {{ t.severity }}">
+      <span class="task-dot"></span>
+      <span class="task-text">{{ t.text }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<div class="kpi-row">
+  <div class="kpi-card">
+    <div class="kpi-label">Заказы вчера</div>
+    <div class="kpi-value">{{ kpi.orders_yesterday }}</div>
+    <div class="kpi-delta {{ kpi.orders_delta_class }}">{{ kpi.orders_delta_text }}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Выручка вчера</div>
+    <div class="kpi-value">{{ kpi.revenue_yesterday }}</div>
+    <div class="kpi-delta {{ kpi.revenue_delta_class }}">{{ kpi.revenue_delta_text }}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Заказы за 7 дней</div>
+    <div class="kpi-value">{{ kpi.orders_7d }}</div>
+    <div class="kpi-delta flat">{{ kpi.revenue_7d }}</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Риск нехватки остатков</div>
+    <div class="kpi-value">{{ stock_risk_count }} SKU</div>
+    <div class="kpi-delta flat">хватит меньше чем на {{ stock_risk_days }} дней</div>
+  </div>
+</div>
+
+<div class="grid">
+
+  <div class="card span2">
+    <div class="card-head">
+      <h2>Продажи за 7 дней</h2>
+      <span class="agent">источник: Ozon Seller API — analytics/data</span>
     </div>
-    <div class="headline-meta">
-      <span class="datestamp">Данные на {{ generated_at }}</span>
-      {% if stock_risk_count > 0 %}
-      <span class="pill warning"><span class="dot"></span>Требует внимания: {{ stock_risk_count }} SKU</span>
-      {% else %}
-      <span class="pill good"><span class="dot"></span>Всё в норме</span>
-      {% endif %}
+    <p class="card-sub">Заказы по дням</p>
+    <div class="barchart">
+      {% for d in daily %}
+      <div class="bar-col">
+        <div class="bar" style="height:{{ d.height_pct }}%" data-tip="{{ d.label }}: {{ d.orders }} заказ(ов)"></div>
+        <span class="x-label">{{ d.label }}</span>
+      </div>
+      {% endfor %}
     </div>
   </div>
 
-  {% if error_message %}
-  <div class="status-banner">⚠️ Не удалось обновить данные при последнем запуске ({{ error_message }}). Показаны последние успешно полученные данные.</div>
-  {% endif %}
-
-  <div class="kpi-row">
-    <div class="kpi-card">
-      <div class="kpi-label">Заказы вчера</div>
-      <div class="kpi-value">{{ kpi.orders_yesterday }}</div>
-      <div class="kpi-delta {{ kpi.orders_delta_class }}">{{ kpi.orders_delta_text }}</div>
+  <div class="card span2">
+    <div class="card-head">
+      <h2>Остатки под риском</h2>
+      <span class="agent">источник: Ozon Seller API — stocks</span>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Выручка вчера</div>
-      <div class="kpi-value">{{ kpi.revenue_yesterday }}</div>
-      <div class="kpi-delta {{ kpi.revenue_delta_class }}">{{ kpi.revenue_delta_text }}</div>
+    {% if stock_rows %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Товар</th><th class="num">Остаток, шт</th><th class="num">Хватит на</th><th>Статус</th></tr></thead>
+        <tbody>
+          {% for r in stock_rows %}
+          <tr>
+            <td>{{ r.name }}</td>
+            <td class="num">{{ r.stock }}</td>
+            <td class="num">{{ r.days_left }} дней</td>
+            <td><span class="chip {{ r.status_class }}">{{ r.status_label }}</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Заказы за 7 дней</div>
-      <div class="kpi-value">{{ kpi.orders_7d }}</div>
-      <div class="kpi-delta flat">{{ kpi.revenue_7d }}</div>
-    </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Риск нехватки остатков</div>
-      <div class="kpi-value">{{ stock_risk_count }} SKU</div>
-      <div class="kpi-delta flat">хватит меньше чем на {{ stock_risk_days }} дней</div>
-    </div>
+    {% else %}
+    <div class="empty-note">Товаров с риском нехватки не найдено — либо остатков достаточно, либо данные ещё не получены.</div>
+    {% endif %}
   </div>
 
-  <div class="grid">
-
-    <div class="card span2">
-      <div class="card-head">
-        <h2>Продажи за 7 дней</h2>
-        <span class="agent">источник: Ozon Seller API — analytics/data</span>
-      </div>
-      <p class="card-sub">Заказы по дням</p>
-      <div class="barchart">
-        {% for d in daily %}
-        <div class="bar-col">
-          <div class="bar" style="height:{{ d.height_pct }}%" data-tip="{{ d.label }}: {{ d.orders }} заказ(ов)"></div>
-          <span class="x-label">{{ d.label }}</span>
-        </div>
-        {% endfor %}
-      </div>
+  <div class="card soon">
+    <div class="card-head">
+      <h2>Реклама и ДРР</h2>
+      <span class="agent">скоро</span>
     </div>
-
-    <div class="card span2">
-      <div class="card-head">
-        <h2>Остатки под риском</h2>
-        <span class="agent">источник: Ozon Seller API — stocks</span>
-      </div>
-      {% if stock_rows %}
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Товар</th><th class="num">Остаток, шт</th><th class="num">Хватит на</th><th>Статус</th></tr></thead>
-          <tbody>
-            {% for r in stock_rows %}
-            <tr>
-              <td>{{ r.name }}</td>
-              <td class="num">{{ r.stock }}</td>
-              <td class="num">{{ r.days_left }} дней</td>
-              <td><span class="chip {{ r.status_class }}">{{ r.status_label }}</span></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-      <div class="empty-note">Товаров с риском нехватки не найдено — либо остатков достаточно, либо данные ещё не получены.</div>
-      {% endif %}
-    </div>
-
-    <div class="card soon">
-      <div class="card-head">
-        <h2>Реклама и ДРР</h2>
-        <span class="agent">скоро</span>
-      </div>
-      <div class="empty-note">Нужен доступ к Ozon Performance API (отдельные ключи от рекламного кабинета) — подключим этот блок вторым шагом.</div>
-    </div>
-
-    <div class="card soon">
-      <div class="card-head">
-        <h2>Отзывы и вопросы</h2>
-        <span class="agent">скоро</span>
-      </div>
-      <div class="empty-note">Добавим, когда подтвердим доступ к API отзывов Ozon.</div>
-    </div>
-
+    <div class="empty-note">Нужен доступ к Ozon Performance API (отдельные ключи от рекламного кабинета) — подключим этот блок вторым шагом.</div>
   </div>
 
-  <div class="team">
-    <h2>Как это устроено</h2>
-    <p>Каждое утро робот (GitHub Actions) сам заходит в Ozon Seller API, пересчитывает эти цифры и публикует обновлённую версию этой страницы. Никаких действий с вашей стороны не требуется.</p>
+  <div class="card soon">
+    <div class="card-head">
+      <h2>Отзывы и вопросы</h2>
+      <span class="agent">скоро</span>
+    </div>
+    <div class="empty-note">Добавим, когда подтвердим доступ к API отзывов Ozon.</div>
   </div>
 
-  <div class="footnote">Последнее обновление: {{ generated_at }} · собрано автоматически</div>
+</div>
+
+<div class="team">
+  <h2>Как это устроено</h2>
+  <p>Каждое утро робот (GitHub Actions) сам заходит в Ozon Seller API, пересчитывает эти цифры и публикует обновлённую версию этой страницы. Если появляются критичные задачи — параллельно уходит уведомление в Telegram. Раз в неделю отдельный ИИ-разбор дополняет цифры выводами и рекомендациями. Никаких действий с вашей стороны не требуется.</p>
+</div>
+
+<div class="footnote">Последнее обновление: {{ generated_at }} · собрано автоматически</div>
 
 </div>
 </body>
