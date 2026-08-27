@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Панель Ozon</title>
+<title>Панель кабинетов</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@700;800&display=swap">
 <style>
@@ -19,6 +19,8 @@
   --accent: #2a78d6;
   --accent-soft: #e3edfb;
   --accent-ink: #184f95;
+  --wb-accent: #7c3fd4;
+  --wb-accent-soft: #efe6fb;
   --good: #0ca30c;
   --good-soft: #e2f6e2;
   --warning: #b8790a;
@@ -42,6 +44,8 @@
     --accent: #3987e5;
     --accent-soft: rgba(57,135,229,0.14);
     --accent-ink: #9dc4f4;
+    --wb-accent: #a887e8;
+    --wb-accent-soft: rgba(124,63,212,0.18);
     --good: #2fbf4f;
     --good-soft: rgba(47,191,79,0.14);
     --warning: #e0a637;
@@ -61,8 +65,8 @@ body {
   font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
-.brand h1, .card-head h2, .team h2, .growth-item h3, .team-role, .tasks-card h2 { font-family: "Manrope", -apple-system, "Segoe UI", sans-serif; }
-.wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 64px; display: flex; flex-direction: column; gap: 18px; }
+.brand h1, .card-head h2, .team h2, .team-role, .tasks-card h2, .mp-title, .summary-label { font-family: "Manrope", -apple-system, "Segoe UI", sans-serif; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 64px; display: flex; flex-direction: column; gap: 22px; }
 .topbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .brand h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -0.01em; }
 .brand p { margin: 4px 0 0; color: var(--ink-soft); font-size: 13.5px; }
@@ -74,6 +78,11 @@ body {
 .pill.good { background: var(--good-soft); color: var(--good); }
 .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .status-banner { background: var(--warning-soft); color: var(--warning); border: 1px solid var(--border-ring); border-radius: 10px; padding: 10px 14px; font-size: 13px; line-height: 1.5; }
+.summary-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.summary-card { background: var(--bg-card); border: 1px solid var(--border-ring); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); }
+.summary-label { font-size: 11.5px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
+.summary-value { margin-top: 6px; font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.summary-sub { margin-top: 4px; font-size: 12.5px; color: var(--ink-soft); }
 .tasks-card { background: var(--bg-card); border: 1px solid var(--border-ring); border-radius: 14px; padding: 18px 20px 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 12px; }
 .tasks-card .card-head h2 { margin: 0; font-size: 15px; font-weight: 800; }
 .task-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 11px; }
@@ -85,10 +94,18 @@ body {
 .task-item.critical .task-text { font-weight: 700; }
 .task-item.warning .task-text { font-weight: 600; }
 .task-item.good .task-text { color: var(--ink-soft); }
-.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.mp-section { display: flex; flex-direction: column; gap: 14px; }
+.mp-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.mp-title { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+.mp-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+.mp-badge.ozon { background: var(--accent-soft); color: var(--accent-ink); }
+.mp-badge.wb { background: var(--wb-accent-soft); color: var(--wb-accent); }
+.mp-unavailable { background: var(--bg-card); border: 1px dashed var(--border-ring); border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 6px; }
+.mp-unavailable p { margin: 0; font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+.kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
 .kpi-card { background: var(--bg-card); border: 1px solid var(--border-ring); border-radius: 12px; padding: 16px 18px; box-shadow: var(--shadow); }
 .kpi-label { font-size: 11.5px; color: var(--ink-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; }
-.kpi-value { margin-top: 6px; font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.kpi-value { margin-top: 6px; font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
 .kpi-delta { margin-top: 4px; font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .kpi-delta.up { color: var(--good); }
 .kpi-delta.down { color: var(--critical); }
@@ -101,9 +118,15 @@ body {
 .card-head h2 { margin: 0; font-size: 15px; font-weight: 800; }
 .card-head .agent { font-size: 11.5px; color: var(--ink-muted); font-weight: 600; }
 .card-sub { font-size: 12.5px; color: var(--ink-soft); margin: -6px 0 0; }
+.expense-rows { display: flex; flex-direction: column; gap: 8px; margin-top: 2px; }
+.expense-row { display: flex; justify-content: space-between; font-size: 13px; }
+.expense-row .k { color: var(--ink-soft); }
+.expense-row .v { font-weight: 700; font-variant-numeric: tabular-nums; }
+.expense-row.total { border-top: 1px solid var(--hairline); padding-top: 8px; margin-top: 2px; }
 .barchart { display: flex; align-items: flex-end; gap: 8px; height: 92px; }
 .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; position: relative; }
 .bar { width: 100%; max-width: 26px; border-radius: 4px 4px 2px 2px; background: var(--accent); position: relative; cursor: default; }
+.card.wb .bar { background: var(--wb-accent); }
 .bar-col .x-label { font-size: 10.5px; color: var(--ink-muted); }
 .bar:hover::after { content: attr(data-tip); position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 6px; background: var(--ink); color: var(--bg-card); font-size: 11px; font-weight: 600; padding: 4px 7px; border-radius: 6px; white-space: nowrap; z-index: 2; }
 table { width: 100%; border-collapse: collapse; font-size: 12.8px; }
@@ -120,18 +143,13 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 .empty-note { font-size: 12.5px; color: var(--ink-muted); padding: 10px 0; }
 .team { background: var(--bg-card); border: 1px solid var(--border-ring); border-radius: 14px; padding: 20px; box-shadow: var(--shadow); }
 .team h2 { margin: 0 0 4px; font-size: 15px; font-weight: 800; }
-.team > p { margin: 0 0 14px; font-size: 12.5px; color: var(--ink-soft); max-width: 62ch; }
-.team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
-.team-card { border: 1px solid var(--hairline); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
-.team-role { font-size: 12.5px; font-weight: 800; }
-.team-skill { font-size: 11px; color: var(--accent-ink); font-weight: 700; }
-.team-desc { font-size: 11.5px; color: var(--ink-soft); line-height: 1.4; }
-.team-run { font-size: 10.5px; color: var(--ink-muted); margin-top: 2px; }
+.team > p { margin: 0; font-size: 12.5px; color: var(--ink-soft); max-width: 68ch; line-height: 1.6; }
 .footnote { font-size: 12px; color: var(--ink-muted); text-align: center; padding-top: 8px; }
 @media (max-width: 860px) {
   .kpi-row { grid-template-columns: repeat(2, 1fr); }
   .grid { grid-template-columns: 1fr; }
   .card.span2 { grid-column: span 1; }
+  .summary-row { grid-template-columns: repeat(2, 1fr); }
 }
 </style>
 </head>
@@ -140,28 +158,57 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 
 <div class="topbar">
   <div class="brand">
-    <h1>Панель Ozon</h1>
-    <p>Личная сводка по кабинету — обновляется автоматически каждое утро</p>
+    <h1>Панель кабинетов</h1>
+    <p>Ozon и Wildberries на одной странице — обновляется автоматически каждое утро</p>
   </div>
   <div class="headline-meta">
     <span class="datestamp">Данные на {{ generated_at }}</span>
-    {% if stock_risk_count > 0 %}
-    <span class="pill warning"><span class="dot"></span>Требует внимания: {{ stock_risk_count }} SKU</span>
+    {% if critical_count > 0 %}
+    <span class="pill critical"><span class="dot"></span>Критично: {{ critical_count }}</span>
+    {% elif warning_count > 0 %}
+    <span class="pill warning"><span class="dot"></span>Требует внимания: {{ warning_count }}</span>
     {% else %}
     <span class="pill good"><span class="dot"></span>Всё в норме</span>
     {% endif %}
   </div>
 </div>
 
-{% if error_message %}
-<div class="status-banner">⚠️ Не удалось обновить данные при последнем запуске ({{ error_message }}). Показаны последние успешно полученные данные.</div>
+{% for mp in marketplaces %}
+{% if mp.status == 'cached' %}
+<div class="status-banner">⚠️ {{ mp.name }}: не удалось обновить данные при последнем запуске ({{ mp.error }}). Показаны последние успешно полученные данные.</div>
+{% endif %}
+{% endfor %}
+
+{% if connected_count > 0 %}
+<div class="summary-row">
+  <div class="summary-card">
+    <div class="summary-label">Кабинетов подключено</div>
+    <div class="summary-value">{{ connected_count }} / {{ marketplaces|length }}</div>
+    <div class="summary-sub">{{ marketplaces | selectattr('unavailable', 'equalto', False) | map(attribute='name') | join(', ') }}</div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-label">Выручка за 7 дней (всего)</div>
+    <div class="summary-value">{{ total_revenue_7d }}</div>
+    <div class="summary-sub">сумма по всем подключённым кабинетам</div>
+  </div>
+  <div class="summary-card">
+    <div class="summary-label">Чистая прибыль за 7 дней</div>
+    {% if combined_net_profit %}
+    <div class="summary-value">{{ combined_net_profit }}</div>
+    <div class="summary-sub">выручка минус себестоимость, комиссии, логистика, реклама</div>
+    {% else %}
+    <div class="summary-value">—</div>
+    <div class="summary-sub">заполните data/costs.json себестоимостью товаров</div>
+    {% endif %}
+  </div>
+</div>
 {% endif %}
 
 {% if tasks %}
 <div class="tasks-card">
   <div class="card-head">
     <h2>Задачи на сегодня</h2>
-    <span class="agent">собрано из данных ниже</span>
+    <span class="agent">собрано по обоим кабинетам</span>
   </div>
   <ul class="task-list">
     {% for t in tasks %}
@@ -174,103 +221,155 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 </div>
 {% endif %}
 
-<div class="kpi-row">
-  <div class="kpi-card">
-    <div class="kpi-label">Заказы вчера</div>
-    <div class="kpi-value">{{ kpi.orders_yesterday }}</div>
-    <div class="kpi-delta {{ kpi.orders_delta_class }}">{{ kpi.orders_delta_text }}</div>
+{% for mp in marketplaces %}
+<div class="mp-section">
+  <div class="mp-head">
+    <h2 class="mp-title">{{ mp.name }}</h2>
+    <span class="mp-badge {{ mp.key }}">{{ mp.key|upper }}</span>
   </div>
-  <div class="kpi-card">
-    <div class="kpi-label">Выручка вчера</div>
-    <div class="kpi-value">{{ kpi.revenue_yesterday }}</div>
-    <div class="kpi-delta {{ kpi.revenue_delta_class }}">{{ kpi.revenue_delta_text }}</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">Заказы за 7 дней</div>
-    <div class="kpi-value">{{ kpi.orders_7d }}</div>
-    <div class="kpi-delta flat">{{ kpi.revenue_7d }}</div>
-  </div>
-  <div class="kpi-card">
-    <div class="kpi-label">Риск нехватки остатков</div>
-    <div class="kpi-value">{{ stock_risk_count }} SKU</div>
-    <div class="kpi-delta flat">хватит меньше чем на {{ stock_risk_days }} дней</div>
-  </div>
-</div>
 
-<div class="grid">
+  {% if mp.unavailable %}
+  <div class="mp-unavailable">
+    {% if mp.status == 'not_configured' %}
+    <p><strong>Кабинет ещё не подключён.</strong> Добавьте ключ(и) API {{ mp.name }} в Settings → Secrets and variables → Actions — и при следующем обновлении здесь появятся реальные данные. Подробности — в README.</p>
+    {% else %}
+    <p><strong>Не удалось получить данные</strong>{% if mp.error %} ({{ mp.error }}){% endif %}, и сохранённого кэша по этому кабинету пока нет. Как только запрос пройдёт успешно один раз — данные появятся и будут сохраняться на случай следующих сбоев.</p>
+    {% endif %}
+  </div>
+  {% else %}
 
-  <div class="card span2">
-    <div class="card-head">
-      <h2>Продажи за 7 дней</h2>
-      <span class="agent">источник: Ozon Seller API — analytics/data</span>
+  <div class="kpi-row">
+    <div class="kpi-card">
+      <div class="kpi-label">Заказы вчера</div>
+      <div class="kpi-value">{{ mp.kpi.orders_yesterday }}</div>
+      <div class="kpi-delta {{ mp.kpi.orders_delta_class }}">{{ mp.kpi.orders_delta_text }}</div>
     </div>
-    <p class="card-sub">Заказы по дням</p>
-    <div class="barchart">
-      {% for d in daily %}
-      <div class="bar-col">
-        <div class="bar" style="height:{{ d.height_pct }}%" data-tip="{{ d.label }}: {{ d.orders }} заказ(ов)"></div>
-        <span class="x-label">{{ d.label }}</span>
+    <div class="kpi-card">
+      <div class="kpi-label">Выручка вчера</div>
+      <div class="kpi-value">{{ mp.kpi.revenue_yesterday }}</div>
+      <div class="kpi-delta {{ mp.kpi.revenue_delta_class }}">{{ mp.kpi.revenue_delta_text }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Заказы за 7 дней</div>
+      <div class="kpi-value">{{ mp.kpi.orders_7d }}</div>
+      <div class="kpi-delta flat">{{ mp.kpi.revenue_7d }}</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Чистая прибыль, 7 дн.</div>
+      {% if mp.net_profit %}
+      <div class="kpi-value">{{ mp.net_profit.value }}</div>
+      <div class="kpi-delta flat">{% if mp.net_profit.state == 'partial' %}себестоимость известна не для всех товаров{% else %}по всем проданным товарам{% endif %}</div>
+      {% else %}
+      <div class="kpi-value">—</div>
+      <div class="kpi-delta flat">нужна себестоимость в data/costs.json</div>
+      {% endif %}
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Риск нехватки остатков</div>
+      <div class="kpi-value">{{ mp.stock_risk_count }} SKU</div>
+      <div class="kpi-delta flat">хватит меньше чем на {{ mp.stock_risk_days }} дней</div>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <div class="card span2 {{ mp.key }}">
+      <div class="card-head">
+        <h2>Продажи за 7 дней</h2>
+        <span class="agent">источник: {{ mp.name }} API</span>
       </div>
-      {% endfor %}
+      <p class="card-sub">Заказы по дням</p>
+      <div class="barchart">
+        {% for d in mp.daily %}
+        <div class="bar-col">
+          <div class="bar" style="height:{{ d.height_pct }}%" data-tip="{{ d.label }}: {{ d.orders }} заказ(ов)"></div>
+          <span class="x-label">{{ d.label }}</span>
+        </div>
+        {% endfor %}
+      </div>
     </div>
-  </div>
 
-  <div class="card span2">
-    <div class="card-head">
-      <h2>Остатки под риском</h2>
-      <span class="agent">источник: Ozon Seller API — stocks</span>
+    <div class="card span2">
+      <div class="card-head">
+        <h2>Остатки под риском</h2>
+        <span class="agent">источник: {{ mp.name }} API — stocks</span>
+      </div>
+      {% if mp.stock_rows %}
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Товар</th><th class="num">Остаток, шт</th><th class="num">Хватит на</th><th>Статус</th></tr></thead>
+          <tbody>
+            {% for r in mp.stock_rows %}
+            <tr>
+              <td>{{ r.name }}</td>
+              <td class="num">{{ r.stock }}</td>
+              <td class="num">{{ r.days_left }} дней</td>
+              <td><span class="chip {{ r.status_class }}">{{ r.status_label }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-note">Товаров с риском нехватки не найдено — либо остатков достаточно, либо данные ещё не получены.</div>
+      {% endif %}
     </div>
-    {% if stock_rows %}
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Товар</th><th class="num">Остаток, шт</th><th class="num">Хватит на</th><th>Статус</th></tr></thead>
-        <tbody>
-          {% for r in stock_rows %}
-          <tr>
-            <td>{{ r.name }}</td>
-            <td class="num">{{ r.stock }}</td>
-            <td class="num">{{ r.days_left }} дней</td>
-            <td><span class="chip {{ r.status_class }}">{{ r.status_label }}</span></td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-    {% else %}
-    <div class="empty-note">Товаров с риском нехватки не найдено — либо остатков достаточно, либо данные ещё не получены.</div>
-    {% endif %}
-  </div>
 
-  <div class="card {% if not ads %}soon{% endif %}">
-    <div class="card-head">
-      <h2>Реклама и ДРР</h2>
-      <span class="agent">{% if ads %}источник: Ozon Performance API{% else %}скоро{% endif %}</span>
+    <div class="card {% if not mp.ads %}soon{% endif %}">
+      <div class="card-head">
+        <h2>Реклама и ДРР</h2>
+        <span class="agent">{% if mp.ads %}источник: {{ mp.name }} Performance API{% else %}скоро{% endif %}</span>
+      </div>
+      {% if mp.ads and mp.ads.state == 'ok' %}
+      <div class="kpi-value">{% if mp.ads.drr_pct is not none %}{{ mp.ads.drr_pct }}%{% else %}—{% endif %}</div>
+      <p class="card-sub">Расход на рекламу за 7 дней: {{ mp.ads.spend }}</p>
+      {% elif mp.ads and mp.ads.state == 'no_campaigns' %}
+      <div class="empty-note">Ключи подключены, но активных рекламных кампаний не найдено.</div>
+      {% elif mp.ads and mp.ads.state == 'error' %}
+      <div class="empty-note">Ключи подключены, но при последнем запуске не удалось получить данные по рекламе — поправим по логу Actions.</div>
+      {% else %}
+      <div class="empty-note">{% if mp.key == 'ozon' %}Нужен доступ к Ozon Performance API (отдельные ключи от рекламного кабинета).{% else %}Реклама Wildberries — отдельный API, подключим следующим шагом.{% endif %}</div>
+      {% endif %}
     </div>
-    {% if ads and ads.state == 'ok' %}
-    <div class="kpi-value">{% if ads.drr_pct is not none %}{{ ads.drr_pct }}%{% else %}—{% endif %}</div>
-    <p class="card-sub">Расход на рекламу за 7 дней: {{ ads.spend }}</p>
-    {% elif ads and ads.state == 'no_campaigns' %}
-    <div class="empty-note">Ключи подключены, но активных рекламных кампаний не найдено.</div>
-    {% elif ads and ads.state == 'error' %}
-    <div class="empty-note">Ключи подключены, но при последнем запуске не удалось получить данные по рекламе — поправим по логу Actions.</div>
-    {% else %}
-    <div class="empty-note">Нужен доступ к Ozon Performance API (отдельные ключи от рекламного кабинета) — подключим этот блок вторым шагом.</div>
-    {% endif %}
-  </div>
 
-  <div class="card soon">
-    <div class="card-head">
-      <h2>Отзывы и вопросы</h2>
-      <span class="agent">скоро</span>
+    <div class="card {% if not mp.buyout %}soon{% endif %}">
+      <div class="card-head">
+        <h2>Процент выкупа</h2>
+        <span class="agent">{% if mp.buyout %}источник: {{ mp.name }} API{% else %}скоро{% endif %}</span>
+      </div>
+      {% if mp.buyout and mp.buyout.state == 'ok' %}
+      <div class="kpi-value">{% if mp.buyout.pct is not none %}{{ mp.buyout.pct }}%{% else %}—{% endif %}</div>
+      <p class="card-sub">Возвратов за 7 дней: {{ mp.buyout.returns_units }} шт</p>
+      {% else %}
+      <div class="empty-note">Не удалось получить данные по возвратам — поправим по логу Actions.</div>
+      {% endif %}
     </div>
-    <div class="empty-note">Добавим, когда подтвердим доступ к API отзывов Ozon.</div>
-  </div>
 
+    <div class="card span2 {% if not mp.expenses %}soon{% endif %}">
+      <div class="card-head">
+        <h2>Расходы площадки</h2>
+        <span class="agent">{% if mp.expenses %}источник: {{ mp.name }} API — финансовый отчёт{% else %}скоро{% endif %}</span>
+      </div>
+      {% if mp.expenses and mp.expenses.state == 'ok' %}
+      <div class="expense-rows">
+        <div class="expense-row"><span class="k">Комиссия площадки</span><span class="v">{{ mp.expenses.commission }}</span></div>
+        <div class="expense-row"><span class="k">Логистика</span><span class="v">{{ mp.expenses.logistics }}</span></div>
+        <div class="expense-row"><span class="k">Хранение</span><span class="v">{{ mp.expenses.storage }}</span></div>
+        <div class="expense-row total"><span class="k">Итого за 7 дней</span><span class="v">{{ mp.expenses.total }}</span></div>
+      </div>
+      {% else %}
+      <div class="empty-note">Не удалось получить финансовый отчёт — поправим по логу Actions.</div>
+      {% endif %}
+    </div>
+
+  </div>
+  {% endif %}
 </div>
+{% endfor %}
 
 <div class="team">
   <h2>Как это устроено</h2>
-  <p>Каждое утро робот (GitHub Actions) сам заходит в Ozon Seller API, пересчитывает эти цифры и публикует обновлённую версию этой страницы. Если появляются критичные задачи — параллельно уходит уведомление в Telegram. Раз в неделю отдельный ИИ-разбор дополняет цифры выводами и рекомендациями. Никаких действий с вашей стороны не требуется.</p>
+  <p>Каждое утро робот (GitHub Actions) заходит в API Ozon и Wildberries, пересчитывает цифры по каждому кабинету и публикует обновлённую версию этой страницы. Чистая прибыль считается по себестоимости из data/costs.json — заполняете сами, по мере добавления товаров. Если появляются критичные задачи — параллельно уходит уведомление в Telegram. Раз в неделю отдельный ИИ-разбор дополняет цифры выводами и рекомендациями. Один кабинет может временно не отвечать — это не ломает данные по другому.</p>
 </div>
 
 <div class="footnote">Последнее обновление: {{ generated_at }} · собрано автоматически</div>
