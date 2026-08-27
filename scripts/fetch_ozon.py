@@ -27,7 +27,11 @@ import requests
 from jinja2 import Template
 
 BASE_URL = "https://api-seller.ozon.ru"
+PERFORMANCE_BASE_URL = "https://performance.ozon.ru"
 SITE_URL = "https://yulyakudryavtseva1-ctrl.github.io/ozon-panel1/"
+# Если ДРР (расход на рекламу / выручка) выше этого порога — заводим задачу
+# на сегодня. Число примерное, подправь под свою норму.
+DRR_ALERT_THRESHOLD = 15.0
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(ROOT, "data")
 LAST_DATA_PATH = os.path.join(DATA_DIR, "last_data.json")
@@ -149,12 +153,105 @@ def fetch_stocks(headers):
     return stocks
 
 
+def performance_token():
+    """Bearer-токен для Ozon Performance API (рекламный кабинет) — это
+    ОТДЕЛЬНЫЕ ключи от Seller API. Получить: личный кабинет Ozon → Настройки
+    → API-ключи → раздел Performance API → Добавить ключ (даст Client ID и
+    Client Secret, не путать с Client-Id/Api-Key от Seller API).
+
+    Если секреты OZON_PERFORMANCE_CLIENT_ID / OZON_PERFORMANCE_CLIENT_SECRET
+    не заданы — возвращает None, и весь блок с рекламой на сайте остаётся
+    "скоро", не отключая остальную страницу."""
+    client_id = os.environ.get("OZON_PERFORMANCE_CLIENT_ID")
+    client_secret = os.environ.get("OZON_PERFORMANCE_CLIENT_SECRET")
+    if not client_id or not client_secret:
+        return None
+    resp = requests.post(
+        f"{PERFORMANCE_BASE_URL}/api/client/token",
+        json={
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "grant_type": "client_credentials",
+        },
+        timeout=30,
+    )
+    resp.raise_for_status()
+    token = resp.json().get("access_token")
+    if not token:
+        raise RuntimeError("Ozon Performance API не вернул access_token")
+    return token
+
+
+def fetch_ad_spend(token, days=7):
+    """Расход на рекламу за последние N дней.
+
+    НЕ ПРОВЕРЕНО ВЖИВУЮ на момент написания (27.08.2026) — собрано по
+    описаниям метода в открытых источниках, а не по официальному
+    подтверждённому вызову, в отличие от остальных методов в этом файле.
+    Если при первом реальном запуске с ключами Performance API в логе
+    Actions будет ошибка 4xx — почти наверняка дело в имени параметра или
+    пути ниже, поправь по тексту ошибки (и, если нужно, свериться с
+    https://docs.ozon.ru/api/performance/).
+
+    Логика: 1) GET /api/client/campaign — список кампаний;
+    2) GET /api/client/statistics/expense/json?campaigns=...&dateFrom=...&dateTo=...
+    — построчный расход (поле moneySpent), суммируем."""
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/json"}
+
+    camp_resp = requests.get(f"{PERFORMANCE_BASE_URL}/api/client/campaign", headers=headers, timeout=30)
+    camp_resp.raise_for_status()
+    campaigns = camp_resp.json().get("list", [])
+    campaign_ids = [str(c.get("id")) for c in campaigns if c.get("id")]
+    if not campaign_ids:
+        return {"spend": 0.0, "has_campaigns": False}
+
+    date_to = datetime.now(MSK).date()
+    date_from = date_to - timedelta(days=days - 1)
+    params = {
+        "campaigns": campaign_ids,
+        "dateFrom": date_from.isoformat(),
+        "dateTo": date_to.isoformat(),
+    }
+    exp_resp = requests.get(
+        f"{PERFORMANCE_BASE_URL}/api/client/statistics/expense/json",
+        headers=headers,
+        params=params,
+        timeout=30,
+    )
+    exp_resp.raise_for_status()
+    data = exp_resp.json()
+    rows = data if isinstance(data, list) else (data.get("rows") or data.get("list") or [])
+    spend = 0.0
+    for row in rows:
+        try:
+            spend += float(str(row.get("moneySpent", 0)).replace(",", "."))
+        except (TypeError, ValueError):
+            continue
+    return {"spend": spend, "has_campaigns": True}
+
+
+def fetch_ads(days=7):
+    """Обёртка над блоком рекламы: не задан ключ → None (тихо).
+    Задан, но что-то упало → {"error": "..."} — на сайте покажем аккуратное
+    сообщение вместо того, чтобы ронять всю страницу (реклама — необязательный
+    блок, в отличие от заказов/остатков)."""
+    try:
+        token = performance_token()
+        if not token:
+            return None
+        return fetch_ad_spend(token, days=days)
+    except Exception as exc:
+        print(f"Не удалось получить данные по рекламе (не критично, остальная страница не пострадает): {exc}", file=sys.stderr)
+        return {"error": str(exc)}
+
+
 def build_dataset():
     headers = ozon_headers()
     daily = fetch_daily_orders(headers, days=7)
     velocity = fetch_sku_velocity(headers, days=14)
     stocks = fetch_stocks(headers)
-    return {"daily": daily, "velocity": velocity, "stocks": stocks}
+    ads = fetch_ads(days=7)
+    return {"daily": daily, "velocity": velocity, "stocks": stocks, "ads": ads}
 
 
 def load_cached():
@@ -192,10 +289,11 @@ WEEKDAYS_RU = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"]
 ALERT_SEVERITIES = {"critical", "warning"}
 
 
-def build_tasks(stock_rows, orders_yesterday, orders_prev):
+def build_tasks(stock_rows, orders_yesterday, orders_prev, drr_pct=None):
     """Превращает сырые цифры в короткий список конкретных дел на сегодня.
-    Пока источник только остатки + резкий провал заказов; когда подключим
-    рекламу/отзывы — добавь сюда ещё правил, ничего в шаблоне менять не надо."""
+    Источники: остатки, резкий провал заказов, ДРР (если подключена реклама).
+    Когда подключим отзывы — добавь сюда ещё правил, ничего в шаблоне менять
+    не надо."""
     tasks = []
 
     for r in stock_rows:
@@ -223,6 +321,14 @@ def build_tasks(stock_rows, orders_yesterday, orders_prev):
                     "text": f"Заказы упали на {abs(round(change))}% ко вчера — проверить цену, остатки, рекламу и позиции конкурентов.",
                 }
             )
+
+    if drr_pct is not None and drr_pct > DRR_ALERT_THRESHOLD:
+        tasks.append(
+            {
+                "severity": "warning",
+                "text": f"ДРР выше нормы: {drr_pct:.0f}% — проверить ставки и эффективность кампаний.",
+            }
+        )
 
     order = {"critical": 0, "warning": 1, "good": 2}
     tasks.sort(key=lambda t: order.get(t["severity"], 9))
@@ -328,7 +434,25 @@ def render(dataset, error_message=None):
     stock_rows.sort(key=lambda r: r["days_left"])
     stock_rows = stock_rows[:10]
 
-    tasks = build_tasks(stock_rows, orders_yesterday, orders_prev)
+    ads = dataset.get("ads")
+    ads_view = None
+    drr_pct = None
+    if ads and ads.get("error"):
+        ads_view = {"state": "error"}
+    elif ads and not ads.get("has_campaigns", True):
+        ads_view = {"state": "no_campaigns"}
+    elif ads:
+        revenue_7d_total = sum(d["revenue"] for d in daily)
+        if revenue_7d_total:
+            drr_pct = ads["spend"] / revenue_7d_total * 100
+        ads_view = {
+            "state": "ok",
+            "spend": fmt_money(ads["spend"]),
+            "drr_pct": round(drr_pct, 1) if drr_pct is not None else None,
+        }
+    # ads is None → ads_view остаётся None → шаблон покажет "скоро" (ключи не заданы)
+
+    tasks = build_tasks(stock_rows, orders_yesterday, orders_prev, drr_pct=drr_pct)
 
     with open(TEMPLATE_PATH, "r", encoding="utf-8") as f:
         template = Template(f.read())
@@ -341,6 +465,7 @@ def render(dataset, error_message=None):
         stock_risk_count=len(stock_rows),
         stock_risk_days=10,
         tasks=tasks,
+        ads=ads_view,
         error_message=error_message,
     )
 
@@ -365,7 +490,8 @@ def demo_dataset():
         {"sku": "demo-2", "name": "Чехол силикон прозрачный", "present": 61},
         {"sku": "demo-3", "name": "Набор кистей 12 шт", "present": 240},
     ]
-    return {"daily": daily, "velocity": velocity, "stocks": stocks}
+    ads = {"spend": 21400.0, "has_campaigns": True}
+    return {"daily": daily, "velocity": velocity, "stocks": stocks, "ads": ads}
 
 
 def main():

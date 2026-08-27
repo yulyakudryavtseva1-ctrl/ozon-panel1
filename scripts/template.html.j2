@@ -241,12 +241,21 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
     {% endif %}
   </div>
 
-  <div class="card soon">
+  <div class="card {% if not ads %}soon{% endif %}">
     <div class="card-head">
       <h2>Реклама и ДРР</h2>
-      <span class="agent">скоро</span>
+      <span class="agent">{% if ads %}источник: Ozon Performance API{% else %}скоро{% endif %}</span>
     </div>
+    {% if ads and ads.state == 'ok' %}
+    <div class="kpi-value">{% if ads.drr_pct is not none %}{{ ads.drr_pct }}%{% else %}—{% endif %}</div>
+    <p class="card-sub">Расход на рекламу за 7 дней: {{ ads.spend }}</p>
+    {% elif ads and ads.state == 'no_campaigns' %}
+    <div class="empty-note">Ключи подключены, но активных рекламных кампаний не найдено.</div>
+    {% elif ads and ads.state == 'error' %}
+    <div class="empty-note">Ключи подключены, но при последнем запуске не удалось получить данные по рекламе — поправим по логу Actions.</div>
+    {% else %}
     <div class="empty-note">Нужен доступ к Ozon Performance API (отдельные ключи от рекламного кабинета) — подключим этот блок вторым шагом.</div>
+    {% endif %}
   </div>
 
   <div class="card soon">
