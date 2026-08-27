@@ -116,9 +116,17 @@ def fetch_sku_velocity(headers, days=14):
 
 
 def fetch_stocks(headers):
-    """POST /v3/product/info/stocks — остатки по товарам."""
-    payload = {"filter": {"visibility": "ALL"}, "limit": 1000}
-    data = ozon_post("/v3/product/info/stocks", payload, headers)
+    """POST /v4/product/info/stocks — остатки по товарам.
+
+    2026-08-27: раньше здесь был /v3/product/info/stocks, но Ozon вернул
+    404 Not Found на этот путь (метод отключён/заменён) — переключено на v4.
+    v4 пагинирует через `cursor` (строка), а не `last_id`, как было в v3.
+    Структура ответа (items[].stocks[].present) в v4, по доступным
+    источникам, осталась той же, что в v3 — но если снова прилетит 4xx,
+    проверь актуальную схему по https://docs.ozon.ru/api/seller/ и поправь
+    парсинг ниже."""
+    payload = {"filter": {"visibility": "ALL"}, "cursor": "", "limit": 1000}
+    data = ozon_post("/v4/product/info/stocks", payload, headers)
     items = data.get("items") or data.get("result", {}).get("items", [])
     stocks = []
     for item in items:
@@ -285,7 +293,7 @@ def main():
             print("index.html пересобран из последних сохранённых данных.")
         else:
             print("Кэша нет — index.html не изменён.")
-            sys.exit(0)  # не роняем workflow, просто ничего не публикуем в этот раз
+        sys.exit(0)  # не роняем workflow, просто ничего не публикуем в этот раз
 
 
 if __name__ == "__main__":
