@@ -36,13 +36,7 @@
       "revenue": 3900
     }
   ],
-  "velocity": {
-    "4843894585": 2.9285714285714284,
-    "5515987050": 0.0,
-    "5516053738": 0.0,
-    "5516093673": 0.0,
-    "5543092583": 0.0
-  },
+  "velocity": {},
   "stocks": [
     {
       "sku": "5223654512",
@@ -74,5 +68,8 @@
       "name": "кошелек  жен белый",
       "present": 0
     }
-  ]
+  ],
+  "ads": {
+    "error": "404 Client Error: Not Found for url: https://performance.ozon.ru/api/client/token?__rr=1"
+  }
 }
