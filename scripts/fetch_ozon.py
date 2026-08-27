@@ -27,7 +27,7 @@ import requests
 from jinja2 import Template
 
 BASE_URL = "https://api-seller.ozon.ru"
-PERFORMANCE_BASE_URL = "https://performance.ozon.ru"
+PERFORMANCE_BASE_URL = "https://api-performance.ozon.ru"
 SITE_URL = "https://yulyakudryavtseva1-ctrl.github.io/ozon-panel1/"
 # Если ДРР (расход на рекламу / выручка) выше этого порога — заводим задачу
 # на сегодня. Число примерное, подправь под свою норму.
