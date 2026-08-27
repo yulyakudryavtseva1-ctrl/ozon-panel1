@@ -144,57 +144,89 @@ def fetch_stocks(headers):
 def fetch_returns(headers, days=7):
     """Возвраты за последние N дней — нужно для процента выкупа.
 
-    НЕ ПРОВЕРЕНО ВЖИВУЮ: имя метрики "returns" в /v1/analytics/data собрано
-    по открытым источникам. Если в логе Actions будет ошибка или пустой
-    ответ — пришли текст ошибки, поправим имя метрики/метод."""
+    ИСПРАВЛЕНО (2026-08-27): метрика "returns" в /v1/analytics/data оказалась
+    устаревшей — Ozon в реальном ответе вернул {"code":3,"message":"deprecated
+    metrics used"}. Перешли на отдельный метод POST /v1/returns/list (по
+    документации, найденной в открытых источниках, — сам вызов ещё НЕ
+    ПРОВЕРЕН ВЖИВУЮ, потому что до правки метрики он даже не запускался).
+    Считаем количество возвратов простым подсчётом строк в ответе — если
+    имя поля со списком окажется другим, страховка ниже всё равно найдёт
+    первый список в ответе."""
     date_to = datetime.now(MSK).date()
     date_from = date_to - timedelta(days=days - 1)
     payload = {
-        "date_from": date_from.isoformat(),
-        "date_to": date_to.isoformat(),
-        "metrics": ["returns"],
-        "dimension": ["day"],
-        "limit": 1000,
+        "filter": {
+            "logistic_return_date": {
+                "time_from": f"{date_from.isoformat()}T00:00:00.000Z",
+                "time_to": f"{date_to.isoformat()}T23:59:59.999Z",
+            }
+        },
+        "limit": 500,
     }
     try:
-        data = ozon_post("/v1/analytics/data", payload, headers)
-        rows = data.get("result", {}).get("data", [])
-        total = 0
-        for row in rows:
-            metrics = row.get("metrics", [0])
-            total += metrics[0] if metrics else 0
-        return {"returns_units": total, "state": "ok"}
+        data = ozon_post("/v1/returns/list", payload, headers)
+        rows = data.get("returns")
+        if rows is None:
+            rows = next((v for v in data.values() if isinstance(v, list)), [])
+        return {"returns_units": len(rows), "state": "ok"}
     except Exception as exc:
         print(f"Не удалось получить данные по возвратам Ozon (не критично): {exc}", file=sys.stderr)
         return {"state": "error"}
 
 
+def _extract_expense_amounts(obj):
+    """Достаём суммы комиссии/логистики/хранения из одного объекта ответа —
+    точные имена полей не подтверждены вживую, поэтому проверяем несколько
+    вероятных вариантов написания сразу."""
+    commission = float(obj.get("commission_amount") or obj.get("commission") or obj.get("sales_commission") or 0)
+    logistics = float(
+        obj.get("delivery_amount") or obj.get("logistic_amount") or obj.get("logistics") or obj.get("delivery_charge") or 0
+    )
+    storage = float(obj.get("storage_amount") or obj.get("storage") or obj.get("storage_fee") or 0)
+    return commission, logistics, storage
+
+
 def fetch_expenses(headers, days=7):
     """Расходы площадки (комиссия, логистика, хранение) за последние N дней.
 
-    НЕ ПРОВЕРЕНО ВЖИВУЮ (2026-08-27): Ozon отключил старый метод
-    /v3/finance/transaction/list 6 июля 2026 и заменил его тремя новыми:
-    /v1/finance/accrual/postings, /v1/finance/accrual/types,
-    /v1/finance/accrual/by-day. Используем by-day (готовые суммы по дням) —
-    но точные поля ответа здесь наименее проверены из всего файла. Если в
-    логе Actions будет ошибка — пришли текст, поправим по факту, как чинили
-    остатки и рекламу раньше."""
+    ИСПРАВЛЕНО (2026-08-27): в реальном ответе метод потребовал одну дату
+    (поле "date" вида ГГГГ-ММ-ДД), а не диапазон "date_from"/"date_to" —
+    Ozon вернул ошибку валидации именно об этом. Поэтому теперь запрашиваем
+    по одному дню за раз и складываем суммы за days дней. Точные имена полей
+    с суммами внутри ответа за один день по-прежнему НЕ ПРОВЕРЕНЫ ВЖИВУЮ —
+    если после этой правки числа останутся нулевыми при "state": "ok",
+    пришли текст ответа из лога Actions (первая строка stderr ниже), поправим
+    имена полей."""
     date_to = datetime.now(MSK).date()
-    date_from = date_to - timedelta(days=days - 1)
-    payload = {"date_from": date_from.isoformat(), "date_to": date_to.isoformat()}
-    try:
-        data = ozon_post("/v1/finance/accrual/by-day", payload, headers)
+    commission = logistics = storage = 0.0
+    ok_days = 0
+    last_error = None
+    for i in range(days):
+        d = date_to - timedelta(days=i)
+        try:
+            data = ozon_post("/v1/finance/accrual/by-day", {"date": d.isoformat()}, headers)
+        except Exception as exc:
+            last_error = exc
+            continue
         result = data.get("result", data)
-        rows = result if isinstance(result, list) else result.get("rows", result.get("days", []))
-        commission = logistics = storage = 0.0
-        for row in rows:
-            commission += float(row.get("commission_amount") or row.get("commission") or 0)
-            logistics += float(row.get("delivery_amount") or row.get("logistic_amount") or row.get("logistics") or 0)
-            storage += float(row.get("storage_amount") or row.get("storage") or 0)
-        return {"commission": commission, "logistics": logistics, "storage": storage, "state": "ok"}
-    except Exception as exc:
-        print(f"Не удалось получить расходы площадки Ozon (не критично): {exc}", file=sys.stderr)
+        if isinstance(result, list):
+            candidates = result
+        elif isinstance(result, dict):
+            nested_list = next((v for v in result.values() if isinstance(v, list)), None)
+            candidates = nested_list if nested_list is not None else [result]
+        else:
+            candidates = []
+        for row in candidates:
+            if isinstance(row, dict):
+                c, l, s = _extract_expense_amounts(row)
+                commission += c
+                logistics += l
+                storage += s
+        ok_days += 1
+    if ok_days == 0:
+        print(f"Не удалось получить расходы площадки Ozon (не критично): {last_error}", file=sys.stderr)
         return {"state": "error"}
+    return {"commission": commission, "logistics": logistics, "storage": storage, "state": "ok"}
 
 
 def performance_token():
