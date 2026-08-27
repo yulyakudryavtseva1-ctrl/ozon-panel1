@@ -162,7 +162,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
     <p>Ozon и Wildberries на одной странице — обновляется автоматически каждое утро</p>
   </div>
   <div class="headline-meta">
-    <span class="datestamp">Данные на 27.08.2026, 19:55 МСК</span>
+    <span class="datestamp">Данные на 27.08.2026, 19:59 МСК</span>
     
     <span class="pill warning"><span class="dot"></span>Требует внимания: 1</span>
     
@@ -328,7 +328,8 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
         <span class="agent">источник: Ozon API</span>
       </div>
       
-      <div class="empty-note">Не удалось получить данные по возвратам — поправим по логу Actions.</div>
+      <div class="kpi-value">82.8%</div>
+      <p class="card-sub">Возвратов за 7 дней: 5 шт</p>
       
     </div>
 
@@ -338,7 +339,12 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
         <span class="agent">источник: Ozon API — финансовый отчёт</span>
       </div>
       
-      <div class="empty-note">Не удалось получить финансовый отчёт — поправим по логу Actions.</div>
+      <div class="expense-rows">
+        <div class="expense-row"><span class="k">Комиссия площадки</span><span class="v">0 ₽</span></div>
+        <div class="expense-row"><span class="k">Логистика</span><span class="v">0 ₽</span></div>
+        <div class="expense-row"><span class="k">Хранение</span><span class="v">0 ₽</span></div>
+        <div class="expense-row total"><span class="k">Итого за 7 дней</span><span class="v">0 ₽</span></div>
+      </div>
       
     </div>
 
@@ -367,7 +373,7 @@ td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
   <p>Каждое утро робот (GitHub Actions) заходит в API Ozon и Wildberries, пересчитывает цифры по каждому кабинету и публикует обновлённую версию этой страницы. Чистая прибыль считается по себестоимости из data/costs.json — заполняете сами, по мере добавления товаров. Если появляются критичные задачи — параллельно уходит уведомление в Telegram. Раз в неделю отдельный ИИ-разбор дополняет цифры выводами и рекомендациями. Один кабинет может временно не отвечать — это не ломает данные по другому.</p>
 </div>
 
-<div class="footnote">Последнее обновление: 27.08.2026, 19:55 МСК · собрано автоматически</div>
+<div class="footnote">Последнее обновление: 27.08.2026, 19:59 МСК · собрано автоматически</div>
 
 </div>
 </body>

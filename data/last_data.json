@@ -167,10 +167,14 @@
       "has_campaigns": true
     },
     "returns": {
-      "state": "error"
+      "returns_units": 5,
+      "state": "ok"
     },
     "expenses": {
-      "state": "error"
+      "commission": 0.0,
+      "logistics": 0.0,
+      "storage": 0.0,
+      "state": "ok"
     }
   }
 }
