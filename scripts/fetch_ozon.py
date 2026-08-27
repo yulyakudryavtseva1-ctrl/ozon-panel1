@@ -197,10 +197,13 @@ def fetch_expenses(headers, days=7):
     если после этой правки числа останутся нулевыми при "state": "ok",
     пришли текст ответа из лога Actions (первая строка stderr ниже), поправим
     имена полей."""
+    import json as _json
+
     date_to = datetime.now(MSK).date()
     commission = logistics = storage = 0.0
     ok_days = 0
     last_error = None
+    debug_printed = False
     for i in range(days):
         d = date_to - timedelta(days=i)
         try:
@@ -208,6 +211,12 @@ def fetch_expenses(headers, days=7):
         except Exception as exc:
             last_error = exc
             continue
+        if not debug_printed:
+            # Временная диагностика: показываем реальный ответ, чтобы подобрать
+            # точные имена полей с суммами (текущие догадки дают 0 ₽). Как
+            # только числа станут ненулевыми, эту печать можно убрать.
+            print(f"[debug] accrual/by-day за {d.isoformat()}: {_json.dumps(data, ensure_ascii=False)[:800]}", file=sys.stderr)
+            debug_printed = True
         result = data.get("result", data)
         if isinstance(result, list):
             candidates = result
