@@ -42,7 +42,11 @@ def ozon_headers():
 
 def ozon_post(path, payload, headers):
     resp = requests.post(f"{BASE_URL}{path}", headers=headers, json=payload, timeout=30)
-    resp.raise_for_status()
+    if not resp.ok:
+        # Тело ответа Ozon обычно объясняет, что именно не так с запросом
+        # (например message/code) — без этого текста diagnosе почти невозможна,
+        # поэтому подмешиваем его в текст исключения вместо голого "400".
+        raise RuntimeError(f"{resp.status_code} {resp.reason} at {path}: {resp.text[:500]}")
     return resp.json()
 
 
