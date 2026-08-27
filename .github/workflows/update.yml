@@ -1,0 +1,68 @@
+name: Обновление панели Ozon
+
+on:
+  schedule:
+    # 06:00 UTC = 09:00 МСК, каждый день
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements.txt
+
+      - name: Забрать данные Ozon и пересобрать страницу
+        run: python scripts/fetch_ozon.py
+        env:
+          OZON_CLIENT_ID: ${{ secrets.OZON_CLIENT_ID }}
+          OZON_API_KEY: ${{ secrets.OZON_API_KEY }}
+
+      - name: Закоммитить обновлённую страницу
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Автообновление панели"
+          file_pattern: "index.html data/last_data.json"
+name: Обновление панели Ozon
+
+on:
+  schedule:
+    # 06:00 UTC = 09:00 МСК, каждый день
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements.txt
+
+      - name: Забрать данные Ozon и пересобрать страницу
+        run: python scripts/fetch_ozon.py
+        env:
+          OZON_CLIENT_ID: ${{ secrets.OZON_CLIENT_ID }}
+          OZON_API_KEY: ${{ secrets.OZON_API_KEY }}
+
+      - name: Закоммитить обновлённую страницу
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Автообновление панели"
+          file_pattern: "index.html data/last_data.json"
