@@ -70,6 +70,7 @@
     }
   ],
   "ads": {
-    "error": "404 Client Error: Not Found for url: https://performance.ozon.ru/api/client/token?__rr=1"
+    "spend": 5495.099999999999,
+    "has_campaigns": true
   }
 }
